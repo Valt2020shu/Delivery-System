@@ -52,21 +52,21 @@ except Error:
 def sql_data_fetch(cursor):
     global products,delivery_centres,delivery_in_charge,zone_allocation,zone_priority,orders
 
-    cursor.execute("select * from products sort by Product_ID;")
+    cursor.execute("select * from products order by Product_ID;")
     products = cursor.fetchall()
 
-    # cursor.execute("select * from delivery_in_charge sort by IC_ID;")
+    # cursor.execute("select * from delivery_in_charge order by IC_ID;")
     # delivery_in_charge = cursor.fetchall()
 
-    # cursor.execute("select * from delivery_centres sort by C_ID;")
+    # cursor.execute("select * from delivery_centres order by C_ID;")
     # delivery_centres = cursor.fetchall()
 
-    # cursor.execute("select * from zone_allocation sort by zone_no;")
+    # cursor.execute("select * from zone_allocation order by zone_no;")
     # zone_allocation = cursor.fetchall()  
 
-    # cursor.execute("select * from zone_priority sort by zone_no;")
+    # cursor.execute("select * from zone_priority order by zone_no;")
     # zone_priority = cursor.fetchall()
 
-    # cursor.execute("select * from orders sort by order_id;")
+    # cursor.execute("select * from orders order by order_id;")
     # orders = cursor.fetchall()
         
