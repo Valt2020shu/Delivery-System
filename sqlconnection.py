@@ -24,7 +24,7 @@ def manual_connection(host,user,password,database):  #Manual connection if the d
         database = input("Database: ")
         manual_connection(host,user,password,database)
 
-
+        
 try:
     connection = connector.connect(
         host='localhost',
@@ -34,8 +34,6 @@ try:
 
     )
 
-
-
 except Error:
     print(f"Error connecting to MySQL: {Error}")
     print("Please manually enter the following:")
@@ -44,3 +42,31 @@ except Error:
     password = input("Password: ")
     database = input("Database: ")
     manual_connection(host,user,password,database)
+
+
+
+
+
+
+
+def sql_data_fetch(cursor):
+    global products,delivery_centres,delivery_in_charge,zone_allocation,zone_priority,orders
+
+    cursor.execute("select * from products sort by Product_ID;")
+    products = cursor.fetchall()
+
+    # cursor.execute("select * from delivery_in_charge sort by IC_ID;")
+    # delivery_in_charge = cursor.fetchall()
+
+    # cursor.execute("select * from delivery_centres sort by C_ID;")
+    # delivery_centres = cursor.fetchall()
+
+    # cursor.execute("select * from zone_allocation sort by zone_no;")
+    # zone_allocation = cursor.fetchall()  
+
+    # cursor.execute("select * from zone_priority sort by zone_no;")
+    # zone_priority = cursor.fetchall()
+
+    # cursor.execute("select * from orders sort by order_id;")
+    # orders = cursor.fetchall()
+        
