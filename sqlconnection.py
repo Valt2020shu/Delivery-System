@@ -1,9 +1,33 @@
 import mysql.connector as connector
 from mysql.connector import Error
 
-def manual_connection(host,user,password,database):  #Manual connection if the default fails
+
+def automatic_connection():        # Tries to connect automatically
     try:
-        global connection 
+        connection = connector.connect(
+            host='localhost',
+            user='root',    
+            password='O)W%=[-(pEA-D6VFaz`_6',     #Password needs to be adjusted according to the device
+            database='Delivery'
+
+        )
+
+    except Error:
+        print(f"Error connecting to MySQL: {Error}")
+        print("Please manually enter the following:")
+        host = input("Host: ")
+        user = input("User: ")
+        password = input("Password: ")
+        database = input("Database: ")
+        connection = manual_connection(host,user,password,database)
+    
+    return connection
+    
+    
+
+
+def manual_connection(host,user,password,database):  #Manual connection if the default fails
+    try: 
         connection = connector.connect(
         host=host,
         user=user,    
@@ -11,9 +35,6 @@ def manual_connection(host,user,password,database):  #Manual connection if the d
         database=database
 
     )
-
-
-
 
     except Error:
         print(f"Error connecting to MySQL: {Error}")
@@ -24,24 +45,7 @@ def manual_connection(host,user,password,database):  #Manual connection if the d
         database = input("Database: ")
         manual_connection(host,user,password,database)
 
-        
-try:
-    connection = connector.connect(
-        host='localhost',
-        user='root',    
-        password='O)W%=[-(pEA-D6VFaz`_6',     #Password needs to be adjusted according to the device
-        database='Delivery'
-
-    )
-
-except Error:
-    print(f"Error connecting to MySQL: {Error}")
-    print("Please manually enter the following:")
-    host = input("Host: ")
-    user = input("User: ")
-    password = input("Password: ")
-    database = input("Database: ")
-    manual_connection(host,user,password,database)
+    return connection
 
 
 
@@ -49,9 +53,9 @@ except Error:
 
 
 
-def sql_data_fetch(cursor):
-    global products,delivery_centres,delivery_in_charge,zone_allocation,zone_priority,orders
 
+def sql_data_fetch(cursor):  # Gets the data from all tables in the database
+    
     cursor.execute("select * from products order by Product_ID;")
     products = cursor.fetchall()
 
@@ -69,4 +73,5 @@ def sql_data_fetch(cursor):
 
     # cursor.execute("select * from orders order by order_id;")
     # orders = cursor.fetchall()
-        
+
+    return products #,delivery_centres,delivery_in_charge,zone_allocation,zone_priority,orders 

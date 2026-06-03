@@ -1,56 +1,64 @@
 import tabulate
 import routing
 
-class Validation_Error(Exception):
+class Validation_Error(Exception):  # Class for custom error messages
     def __init__ (self,message):
         self.message = message
 
-def create_table(data, headers='keys', tablefmt ='grid'):
+def create_table(data, headers='keys', tablefmt ='grid'):  # For pretty print of tables
     table = tabulate.tabulate(data,headers=headers, tablefmt=tablefmt)
     return table
 
-customer_name = input("Enter your name: ")
 
-while customer_name == "ADMIN":
-    password = input("Enter password: ")
-    if password == "ADMIN":
-        user = "ADMIN"
-        print("Welcome Admin")
-        break
 
-    else:
-        print("Invalid Password")
-        print("If you are an admin please enter the correct name and password")
-        print("If you are a customer, enter your name")
-        customer_name = input("Enter your name: ")
+def user_name():  # Takes the name of the user and keeps it as the customer name
+    customer_name = input("Enter your name: ")  
 
-def customer_order_processing(products,orders,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,prod_id,city,address,customer_name):
-    for row in products:
-        if row["Product_ID"] == prod_id:
+    while customer_name == "ADMIN":  # Verification for admin which allows for database editing, weak verification for the sake of simplicity, not very relevant for the purpose of this project,might be updated later
+        password = input("Enter password: ")
+        if password == "ADMIN":
+            print("Welcome Admin")
             break
+
         else:
-            raise Validation_Error("Invalid Product ID")
+            print("Invalid Password")
+            print("If you are an admin please enter the correct name and password")
+            print("If you are a customer, enter your name")
+            customer_name = input("Enter your name: ")
+        
+    return customer_name
+
+
+
+def customer_order_processing(products,orders,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,prod_id,city,address,customer_name): # Returns query to add customers order to the database 
+    for row in products:
+        if str(row["Product_ID"]) == prod_id:
+            break
+    else:
+        raise Validation_Error("Invalid Product ID")
         
     order_size = row["Size"]
-    order_id = orders[-1]["Order_ID"] + 1
     order_price = row["Price"]
+    
+   # order_id = orders[-1]["Order_ID"] + 1
 
-    zone_no, assigned_in_charge, centre_location = routing.allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,delivery_in_charge)
 
-    return(f'insert into orders values({order_id},{prod_id},{order_size},{customer_name},{address},{zone_no}, {assigned_in_charge},{order_price},{centre_location} )')
-   
+   # zone_no, assigned_in_charge, centre_location = routing.allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,delivery_in_charge)
 
-def customer_input(products,zone_priority='temp',zone_allocation='temp',delivery_centres='temp',delivery_in_charge='temp',orders='temp'):
+    # return(f'insert into orders values({order_id},{prod_id},{order_size},{customer_name},{address},{zone_no}, {assigned_in_charge},{order_price},{centre_location} )')
+    # return f"{order_price},{order_size},{prod_id},{customer_name},{city},{address}" (TEST ONLY)
+
+def customer_input(customer_name,products,zone_priority='temp',zone_allocation='temp',delivery_centres='temp',delivery_in_charge='temp',orders='temp'): # Takes necessary information from the customer to place their order
     while True:
         try:
 
             print(create_table(products))
             print("Select product to purchase")
-            prod_id = input("Enter the Product ID: ")
-            city = input("Enter the city you live in: ")
-            address = input("Enter your address: ")
+            prod_id = input("Enter the Product ID: ").strip()
+            city = input("Enter the city you live in: ").strip()
+            address = input("Enter your address: ").strip()
 
-            customer_order_processing(products,orders,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,prod_id,city,address,customer_name) 
+            return customer_order_processing(products,orders,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,prod_id,city,address,customer_name) 
 
             break
 
