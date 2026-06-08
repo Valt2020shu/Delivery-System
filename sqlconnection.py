@@ -49,7 +49,7 @@ def manual_connection(host,user,password,database):  #Manual connection if the d
         while True:
             choice = input("Do you wish to retry (Y/N): ").strip().lower()
 
-            if choice == "y":
+            if choice == "y" or choice == 'yes':
                 print("Please enter the correct details: ")
                 host = input("Host: ")
                 user = input("User: ")
@@ -59,7 +59,7 @@ def manual_connection(host,user,password,database):  #Manual connection if the d
                 connection = manual_connection(host,user,password,database)
                 break
 
-            elif choice == 'n':
+            elif choice == 'n' or choice == 'no':
                 print('Exiting')
                 print('Goodbye....')
                 return

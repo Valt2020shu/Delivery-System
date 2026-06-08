@@ -15,7 +15,12 @@ def main_menu():  #The main CLI for the entire program
             if choice == '1':
                 print("Creating new order session....\n\n")
                 time.sleep(2)
-                print(data_input.customer_input(customer_name,products))
+                query,additional_query = data_input.customer_input(customer_name,products,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,orders)
+                if query != None:
+                    cursor.execute(query)
+                    connection.commit()
+                    print("Order Placed")
+                    
                 
             elif choice == '2':
                 print("Fetching orders....")

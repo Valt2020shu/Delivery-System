@@ -5,6 +5,7 @@ import datetime
 class Validation_Error(Exception):  # Class for custom error messages
     def __init__ (self,message):
         self.message = message
+        
 
 def create_table(data, headers='keys', tablefmt ='grid'):  # For pretty print of tables
     table = tabulate.tabulate(data,headers=headers, tablefmt=tablefmt)
@@ -37,21 +38,22 @@ def customer_order_processing(products,orders,zone_priority,zone_allocation,deli
             prod_name = row["Product_Name"]
             break
     else:
-        raise Validation_Error("Invalid Product ID")
+        raise Validation_Error("Cannot process order currently: Invalid Product ID")
         
     order_size = row["Size"]
     order_price = row["Price"]
     date_ordered = str(datetime.date.today())
 
 
+    try:
+        zone_no, assigned_in_charge, centre_location, additional_query = routing.allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,delivery_in_charge)
+    except Exception:
+        raise Validation_Error("Cannot process order currently: No available incharges")
 
-    zone_no, assigned_in_charge, centre_location = routing.allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,delivery_in_charge)
-
-    return(f'insert into orders(Product_Name, Order_Size, Customer_Name, Customer_Address, Zone_No, Assigned_Incharge, Order_Price, Shipped_From, Date_Ordered) values({prod_name},{order_size},{customer_name},{address},{zone_no}, {assigned_in_charge},{order_price},{centre_location},{date_ordered} )')
+    return(f"insert into orders(Product_Name, Order_Size, Customer_Name, Customer_Address, Zone_No, Assigned_Incharge, Order_Price, Shipped_From, Date_Ordered) values('{prod_name}','{order_size}','{customer_name}','{address}','{zone_no}', '{assigned_in_charge}','{order_price}','{centre_location}','{date_ordered}')", additional_query)
    #  return f"{order_price},{order_size},{prod_id},{customer_name},{city},{address}" # (TEST ONLY)
 
-def customer_input(customer_name,products,zone_priority='temp',zone_allocation='temp',delivery_centres='temp',delivery_in_charge='temp',orders='temp'): # Takes necessary information from the customer to place their order
-    while True:
+def customer_input(customer_name,products,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,orders): # Takes necessary information from the customer to place their order
         try:
 
             print(create_table(products))
@@ -62,8 +64,16 @@ def customer_input(customer_name,products,zone_priority='temp',zone_allocation='
 
             return customer_order_processing(products,orders,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,prod_id,city,address,customer_name) 
 
-            break
 
         except Validation_Error as e:
             print(e.message)
-            continue
+            while True:
+                choice = input("Do you wish to try again (Y/N): ").strip().lower()
+                if choice == 'y' or choice == 'yes':
+                    return customer_input(customer_name,products,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,orders)
+
+                elif choice == 'n' or choice == 'no':
+                    return None,None
+                
+                else:
+                    print("Please enter a valid option")
