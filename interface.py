@@ -1,5 +1,6 @@
 import data_input
 import sqlconnection
+import time
 
 
 def main_menu():  #The main CLI for the entire program
@@ -12,25 +13,30 @@ def main_menu():  #The main CLI for the entire program
             choice = input("\nEnter option number: ").strip()
             print("\n")
             if choice == '1':
-                print("Number 1 selected")
+                print("Creating new order session....\n\n")
+                time.sleep(2)
                 print(data_input.customer_input(customer_name,products))
                 
             elif choice == '2':
-                print("Number 2 selected")
-                pass
-                # record = cursor.execute(f'select * from orders where customer_name is {data_input.customer_name}')
-                # table = data_input.create_table(record)
-                # print(table)
+                print("Fetching orders....")
+                time.sleep(2)
+                cursor.execute(f'select * from orders where Customer_Name = "{customer_name}"')
+                record = cursor.fetchall()
+                print(customer_name)
+                table = data_input.create_table(record)
+                print(table)
 
             elif choice == '3':
-                print("Number 3 selected")
+                print("Goodbye")
+                print("Exiting....")
+                time.sleep(2)
                 return
 
             else:
                 print("Please select a valid option")
 
     else:
-        while True:
+        while True:   # Need to finish
             print("What do you want to do: ")
             print("\t\t(1) Edit Orders")
             print("\t\t(2) Edit Delivery Centres")
@@ -69,13 +75,12 @@ def main_menu():  #The main CLI for the entire program
 
 if __name__ == "__main__":
     connection = sqlconnection.automatic_connection()  # Connects to the database
-    if connection.is_connected():
-        print("Connected Successfully")
-        print("\n")
-        cursor = connection.cursor(dictionary=True)
-
-        
-    products = sqlconnection.sql_data_fetch(cursor)    
-    customer_name = data_input.user_name()
-    main_menu()
+    if connection is not None:
+        if connection.is_connected():
+            print("Connected Successfully")
+            print("\n")
+            cursor = connection.cursor(dictionary=True)
+            products, delivery_centres, delivery_in_charge, zone_allocation, zone_priority, orders  = sqlconnection.sql_data_fetch(cursor)    
+            customer_name = data_input.user_name()
+            main_menu()
 
