@@ -20,16 +20,19 @@ def main_menu():  #The main CLI for the entire program
                     cursor.execute(query)
                     connection.commit()
                     print("Order Placed")
-                    
                 
+                    
+   
             elif choice == '2':
                 print("Fetching orders....")
                 time.sleep(2)
                 cursor.execute(f'select * from orders where Customer_Name = "{customer_name}"')
                 record = cursor.fetchall()
-                print(customer_name)
+                if len(record) == 0:
+                    print("No placed orders")
                 table = data_input.create_table(record)
                 print(table)
+                
 
             elif choice == '3':
                 print("Goodbye")
@@ -53,23 +56,50 @@ def main_menu():  #The main CLI for the entire program
             print("\n")            
 
             if choice == '1':
-                print("Number 1 selected")
+                print("Fetching orders....")
+                time.sleep(2)
+                cursor.execute(f'select * from orders')
+                record = cursor.fetchall()
+                table = data_input.create_table(record)
+                print(table)              
             
             elif choice == '2':
-                print("Number 2 selected")
+                print("Fetching delivery centres....")
+                time.sleep(2)
+                cursor.execute(f'select * from deliverycentres')
+                record = cursor.fetchall()
+                table = data_input.create_table(record)
+                print(table)  
 
             elif choice == '3':
-                print("Number 3 selected")
+                print("Fetching zone numbers and allocation....")
+                time.sleep(2)
+                cursor.execute(f'select * from zoneallocation, zoneprioritylist where zoneallocation.zone_no = zoneprioritylist.zone_no')
+                record = cursor.fetchall()
+                table = data_input.create_table(record)
+                print(table)  
 
             elif choice == '4':
-                print("Number 4 selected")
+                print("Fetching products....")
+                time.sleep(2)
+                cursor.execute(f'select * from products')
+                record = cursor.fetchall()
+                table = data_input.create_table(record)
+                print(table)  
 
             elif choice == '5':
-                print("Number 5 selected")
+                print("Fetching delivery incharges....")
+                time.sleep(2)
+                cursor.execute(f'select * from deliveryincharges')
+                record = cursor.fetchall()
+                table = data_input.create_table(record)
+                print(table)  
                 
 
             elif choice == '6':
-                print("Number 6 selected")
+                print("Goodbye")
+                print("Exiting....")
+                time.sleep(2)
                 return
 
             else:
@@ -88,4 +118,3 @@ if __name__ == "__main__":
             products, delivery_centres, delivery_in_charge, zone_allocation, zone_priority, orders  = sqlconnection.sql_data_fetch(cursor)    
             customer_name = data_input.user_name()
             main_menu()
-
