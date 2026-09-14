@@ -1,20 +1,25 @@
 import mysql.connector as connector
 from mysql.connector import Error
+import json
 
 
 def automatic_connection():        # Tries to connect automatically
+    with open('config.json', 'r') as config:
+        data = json.load(config)
+    # print(data['host'],data['user'],data['password'],data['database'])
     try:
         print("Connecting to MySQL server....")
         connection = connector.connect(
-            host='localhost',
-            user='root',    
-            password='O)W%=[-(pEA-D6VFaz`_6',     #Password needs to be adjusted according to the device
-            database='Delivery'
+            host = str(data['host']).strip(),
+            user = str(data['user']).strip(),    
+            password = str(data['password']).strip(),     #Password needs to be adjusted according to the device
+            database = str(data['database']).strip()
 
         )
 
-    except Error:
-        print(f"Error connecting to MySQL: {Error}\n")
+    except connector.Error as e:
+        print(f"Error connecting to MySQL: {e.errno}\n")
+        print(f"Error connecting to MySQL: {e.msg}\n")
         print("Please manually enter the following:")
         host = input("Host: ")
         user = input("User: ")
@@ -40,6 +45,9 @@ def manual_connection(host,user,password,database):  #Manual connection if the d
             database=database
 
     )
+        with open('config.json','w') as config:
+            data = {'host':host,'user':user,'password':password,'database':database}
+            json.dump(data,config,indent=3)
         
 
     except Error:
