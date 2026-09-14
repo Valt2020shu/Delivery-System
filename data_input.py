@@ -1,3 +1,13 @@
+'''
+==========================================================================================================================================================
+MODULE: data_input.py
+PURPOSE: Responsible for various data inputs: Customer Orders, Admin Editing
+==========================================================================================================================================================
+'''
+
+
+
+
 import tabulate
 import routing
 import datetime
@@ -14,7 +24,7 @@ def create_table(data, headers='keys', tablefmt ='grid'):  # For pretty print of
 
 
 def user_name():  # Takes the name of the user and keeps it as the customer name
-    customer_name = input("Enter your name: ")  
+    customer_name = input("Enter your name: ").strip()
 
     while customer_name == "ADMIN":  # Verification for admin which allows for database editing, weak verification for the sake of simplicity, not very relevant for the purpose of this project,might be updated later
         password = input("Enter password: ")
@@ -30,7 +40,23 @@ def user_name():  # Takes the name of the user and keeps it as the customer name
         
     return customer_name
 
-
+def order_confirmation(customer,prod_name,order_price,expected_delivery):
+    print(f"Dear {customer},")
+    print(f"You have placed an order for {prod_name}")
+    print(f"The product costs {order_price}")
+    print(f"Order will be paid for upon delivery")
+    choice = input("Confirm Order(Y/N): ").strip().lower()
+    while True:
+        if choice == 'y' or choice == 'yes':
+            print("Thank you for shopping with us")
+            print(f"Expected delivery date: {expected_delivery}")
+            return True
+        elif choice == 'n' or choice == 'no':
+            print("Cancelling Order")
+            return False
+        else:
+            print("Please enter a valid choice")
+            continue
 
 def customer_order_processing(products,orders,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,prod_id,city,address,customer_name): # Returns query to add customers order to the database 
     for row in products:
@@ -42,16 +68,30 @@ def customer_order_processing(products,orders,zone_priority,zone_allocation,deli
         
     order_size = row["Size"]
     order_price = row["Price"]
-    date_ordered = str(datetime.date.today())
+
+
 
 
     try:
-        zone_no, assigned_in_charge, centre_location, additional_query = routing.allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,delivery_in_charge)
-    except Exception:
+        zone_no, assigned_in_charge, centre_location, additional_query, additional_values, priority_no = routing.allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,delivery_in_charge)
+        date_ordered = str(datetime.date.today())
+        expected_delivery_date = datetime.date.today() + datetime.timedelta(days=priority_no)  # Determines the expected date of delivery based on how far the centre is
+
+        if order_confirmation(customer_name,prod_name,order_price,expected_delivery_date):    # Takes confirmation from user if they wish to buy the product
+
+                orders_query = "insert into orders(Product_Name, Order_Size, Customer_Name, Customer_Address, Zone_No, Assigned_Incharge, Order_Price, Shipped_From, Date_Ordered, Expected_Delivery_Date) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                orders_values = (prod_name,order_size,customer_name,address,zone_no, assigned_in_charge,order_price,centre_location,date_ordered,expected_delivery_date)
+                return (orders_query, orders_values, additional_query, additional_values)
+
+        else:
+            return "Order Cancelled"
+
+    except Exception as e:
+        print(e)
         raise Validation_Error("Cannot process order currently: No available incharges")
 
-    return(f"insert into orders(Product_Name, Order_Size, Customer_Name, Customer_Address, Zone_No, Assigned_Incharge, Order_Price, Shipped_From, Date_Ordered) values('{prod_name}','{order_size}','{customer_name}','{address}','{zone_no}', '{assigned_in_charge}','{order_price}','{centre_location}','{date_ordered}')", additional_query)
-   #  return f"{order_price},{order_size},{prod_id},{customer_name},{city},{address}" # (TEST ONLY)
+
+
 
 def customer_input(customer_name,products,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,orders): # Takes necessary information from the customer to place their order
         try:

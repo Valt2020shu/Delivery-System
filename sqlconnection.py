@@ -1,3 +1,12 @@
+'''
+==========================================================================================================================================================
+MODULE: sqlconnection.py
+PURPOSE: Responsible for connecting the sql database and fetch the required tables
+==========================================================================================================================================================
+'''
+
+
+
 import mysql.connector as connector
 from mysql.connector import Error
 import json
@@ -6,7 +15,6 @@ import json
 def automatic_connection():        # Tries to connect automatically
     with open('config.json', 'r') as config:
         data = json.load(config)
-    # print(data['host'],data['user'],data['password'],data['database'])
     try:
         print("Connecting to MySQL server....")
         connection = connector.connect(

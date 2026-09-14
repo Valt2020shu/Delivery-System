@@ -1,3 +1,13 @@
+'''
+==========================================================================================================================================================
+MODULE: interface.py
+PURPOSE: Responsible for providing the interface between the user and the program allowing them to communicate
+==========================================================================================================================================================
+'''
+
+
+
+
 import data_input
 import sqlconnection
 import time
@@ -15,9 +25,17 @@ def main_menu():  #The main CLI for the entire program
             if choice == '1':
                 print("Creating new order session....\n\n")
                 time.sleep(2)
-                query,additional_query = data_input.customer_input(customer_name,products,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,orders)
-                if query != None:
-                    cursor.execute(query)
+                data = data_input.customer_input(customer_name,products,zone_priority,zone_allocation,delivery_centres,delivery_in_charge,orders)
+
+                if type(data) == tuple:
+                    query,values,additional_query,additional_values = data
+                else:
+                    print("Order Cancelled")
+                    query = None
+
+                if query != None:    # If the order is placed, stores it in the system
+                    cursor.execute(query,values)
+                    cursor.execute(additional_query,additional_values)
                     connection.commit()
                     print("Order Placed")
                 
@@ -26,7 +44,7 @@ def main_menu():  #The main CLI for the entire program
             elif choice == '2':
                 print("Fetching orders....")
                 time.sleep(2)
-                cursor.execute(f'select * from orders where Customer_Name = "{customer_name}"')
+                cursor.execute('select * from orders where Customer_Name = %s',(customer_name,))
                 record = cursor.fetchall()
                 if len(record) == 0:
                     print("No placed orders")
