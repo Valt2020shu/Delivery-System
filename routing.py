@@ -12,6 +12,7 @@
 #         return False
 
 
+
 def allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,delivery_in_charge):
     if order_size == "Large":
         size = 3
@@ -30,39 +31,19 @@ def allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,de
             priority_2 = i['Priority_2']
             priority_3 = i['Priority_3']
 
-    for i in delivery_in_charge:   # Might change the condition repetition to a function
+    for i in delivery_in_charge:   
         if i['C_ID'] == priority_1:
-           if i['Zone_Delivered'] == zone_no and i['Maximum_Orders'] - i["Current_Orders"] >= size:
-                current_orders = i['Current_Orders']
-                if current_orders+size == i['Maximum_Orders']:
-                    availability = 0
-                else:
-                    availability = 1
-                assigned_in_charge = i['Name']
-                centre_id = priority_1
-                break
+            availability, assigned_in_charge, centre_id, current_orders = priority_check(i,priority_1,zone_no,size)
+            break
 
         elif i['C_ID'] == priority_2:
-           if i['Zone_Delivered'] == zone_no and i['Maximum_Orders'] - i["Current_Orders"] >= size:
-                current_orders = i['Current_Orders']
-                if current_orders+size == i['Maximum_Orders']:
-                    availability = 0
-                else:
-                    availability = 1                
-                assigned_in_charge = i['Name']
-                centre_id = priority_2
-                break
+           availability, assigned_in_charge, centre_id, current_orders = priority_check(i,priority_2,zone_no,size)
+           break
                
         elif i['C_ID'] == priority_3:
-           if i['Zone_Delivered'] == zone_no and i['Maximum_Orders'] - i["Current_Orders"] >= size:
-                if current_orders+size == i['Maximum_Orders']:
-                    availability = 0
-                else:
-                    availability = 1
-                current_orders = i['Current_Orders']
-                assigned_in_charge = i['Name']
-                centre_id = priority_3
-                break
+           availability, assigned_in_charge, centre_id, current_orders = priority_check(i,priority_3,zone_no,size)
+           break
+
         else:
             continue
 
@@ -75,3 +56,15 @@ def allocation(zone_allocation,zone_priority,order_size,city,delivery_centres,de
             
 
     return zone_no, assigned_in_charge, centre_location, f"update deliveryincharges set current_orders = {current_orders} + {size}, availability = {availability}"
+
+def priority_check(delivery_in_charge,priority,zone_no,size):
+    if delivery_in_charge['Zone_Delivered'] == zone_no and delivery_in_charge['Maximum_Orders'] - delivery_in_charge["Current_Orders"] >= size:
+     current_orders = delivery_in_charge['Current_Orders']
+     if current_orders+size == delivery_in_charge['Maximum_Orders']:
+         availability = 0
+     else:
+         availability = 1
+     assigned_in_charge = delivery_in_charge['Name']
+     centre_id = priority
+    return availability,assigned_in_charge,centre_id,current_orders
+
